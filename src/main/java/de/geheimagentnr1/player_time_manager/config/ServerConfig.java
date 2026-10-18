@@ -1,6 +1,5 @@
 package de.geheimagentnr1.player_time_manager.config;
 
-import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.UnmodifiableConfig;
 import de.geheimagentnr1.player_time_manager.config.raw.DimensionRaw;
 import de.geheimagentnr1.player_time_manager.config.raw.GeneralRaw;
@@ -130,25 +129,11 @@ public class ServerConfig {
 		dimensions = builder.comment( "Time limits of single dimensions (the Overworld can't be limited here, use [world] instead)" )
 			.defineListAllowEmpty(
 				"dimensions",
-				() -> DimensionEntries.defaults().stream().map( entry -> toConfig( DimensionEntries.toValues( entry ), DimensionEntries.COMMENTS ) ).toList(),
+				() -> DimensionEntries.defaults().stream().map( entry -> ConfigTables.toTable( DimensionEntries.toValues( entry ), DimensionEntries.COMMENTS ) ).toList(),
 				ConfigTables::isTable
 			);
 		
 		spec = builder.build();
-	}
-	
-	@NotNull
-	private static CommentedConfig toConfig( @NotNull Map<String, Object> values, @NotNull Map<String, String> comments ) {
-		
-		CommentedConfig config = CommentedConfig.inMemory();
-		values.forEach( ( key, value ) -> {
-			config.set( key, value );
-			String comment = comments.get( key );
-			if( comment != null ) {
-				config.setComment( key, comment );
-			}
-		} );
-		return config;
 	}
 	
 	@NotNull
@@ -256,16 +241,16 @@ public class ServerConfig {
 	
 	public void setDimensions( @NotNull List<DimensionRaw> value ) {
 		
-		setAndSave( dimensions, value.stream().map( entry -> toConfig( DimensionEntries.toValues( entry ), DimensionEntries.COMMENTS ) ).toList() );
+		setAndSave( dimensions, value.stream().map( entry -> ConfigTables.toTable( DimensionEntries.toValues( entry ), DimensionEntries.COMMENTS ) ).toList() );
 	}
 	
 	public void setLimitedPlayers( @NotNull List<PlayerRef> value ) {
 		
-		setAndSave( limitedPlayers, value.stream().map( entry -> toConfig( PlayerEntries.toValues( entry ), PlayerEntries.COMMENTS ) ).toList() );
+		setAndSave( limitedPlayers, value.stream().map( entry -> ConfigTables.toTable( PlayerEntries.toValues( entry ), PlayerEntries.COMMENTS ) ).toList() );
 	}
 	
 	public void setExemptPlayers( @NotNull List<PlayerRef> value ) {
 		
-		setAndSave( exemptPlayers, value.stream().map( entry -> toConfig( PlayerEntries.toValues( entry ), PlayerEntries.COMMENTS ) ).toList() );
+		setAndSave( exemptPlayers, value.stream().map( entry -> ConfigTables.toTable( PlayerEntries.toValues( entry ), PlayerEntries.COMMENTS ) ).toList() );
 	}
 }
