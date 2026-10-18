@@ -1,0 +1,7 @@
+- Time limits for the whole world and for single dimensions
+- Automatic refills by cron schedule (SET or ADD, optional maximum), globally or per world/dimension
+- Players are teleported to a configurable target point when the dimension time runs out and can't enter the dimension again until the next refill
+- Players are kicked when the world time runs out and can't join again until the next refill
+- Display of the remaining time as action bar or boss bars, chat warnings with sound
+- Operators, players in creative or spectator mode and listed players can be exempted
+- /playtime command to show and change remaining times, limits, refills and target points
