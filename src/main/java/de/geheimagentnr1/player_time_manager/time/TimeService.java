@@ -293,7 +293,7 @@ public class TimeService {
 		boolean teleported = PlayerTeleporter.teleport( player, destination );
 		if( !teleported ) {
 			// e.g. another mod cancelled the teleport into the target dimension
-			teleported = PlayerTeleporter.teleport( player, TargetResolver.worldSpawn( server ) );
+			teleported = PlayerTeleporter.teleport( player, TargetResolver.worldSpawn( server, player ) );
 		}
 		if( !teleported ) {
 			LOGGER.warn( "Player Time Manager: could not teleport {} out of {}", player.getGameProfile().getName(), dimension );
