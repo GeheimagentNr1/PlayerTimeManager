@@ -7,7 +7,9 @@ Player Time Manager begrenzt, wie lange Spieler **insgesamt in der Welt** und **
 ## Versionen
 
 - Branches, Ranges und Tags: Zeile „PlayerTimeManager“ in [`../Docs/VERSIONEN.md`](../Docs/VERSIONEN.md).
-- NeoForge: `develop_1.21.1` (Range `[1.21.1,1.21.2)`, Version 1.0.0). Ports 1.21.2 - 26.3 folgen (Folgeplan, Spec Abschnitt 11). Keine Forge-Branches.
+- NeoForge (Version 1.0.0, keine Forge-Branches): `develop_1.21.1` `[1.21.1,1.21.2)`, `develop_1.21.2` `[1.21.2,1.21.5)`, `develop_1.21.5` `[1.21.5,1.21.6)`, `develop_1.21.6` `[1.21.6,1.21.9)`, `develop_1.21.9` `[1.21.9,1.21.11)`, `develop_1.21.11` `[1.21.11,1.21.12)`, `develop_26.1` `[26.1,26.3)`, `develop_26.3` `[26.3,27)` (NeoForge ≥ 26.3.0.37-beta).
+- Code-Unterschiede: 1.21.2 `TeleportTransition`, ganzes Fahrzeug wird teleportiert (`TeleportPlan`, Ausweg: Spieler allein), Respawn-Event `get/setTeleportTransition`; 1.21.5 `getRespawnConfig()`; 1.21.6 `serialize(MapCodec)` mit `data/FlatMapCodec` (gleiches Speicherformat wie `Codec.unboundedMap`, Test mit DataFixerUpper als `testImplementation`); 1.21.9 `NameAndId`, `services().nameToIdCache()`, `isOp( NameAndId )`, Welt-Spawn aus `server.getRespawnData()` (liegt er in einer Dimension ohne Restzeit, Overworld an gleicher x/z, `SpawnChoice`); 1.21.11 `Identifier`, `PermissionCheck` (Stufe aus der Config, 0 = `Commands.LEVEL_ALL`), Glockenton per `ClientboundSoundPacket`; 26.1 Java 25, `ServerBossEvent( UUID, .. )`, `sendOverlayMessage`, `data/LegacyAttachmentMigration` (alte `neoforge_data_attachments.dat` einmalig übernehmen); 26.2 im 26.1-Jar (`Vec3.atBottomCenterOf` statt `getBottomCenter`); 26.3 `ModConfig.Type.SYNCED` mit Dateiname `player_time_manager-server.toml`.
+- Port-Plan: [`docs/superpowers/plans/2026-10-18-player-time-manager-ports.md`](docs/superpowers/plans/2026-10-18-player-time-manager-ports.md); Server-Smoke: [`../Docs/testing/tools/ptm_smoke.sh`](../Docs/testing/tools/ptm_smoke.sh) `<mc> <jar>`.
 - Spec und Plan: [`docs/superpowers/specs/2026-10-13-player-time-manager-design.md`](docs/superpowers/specs/2026-10-13-player-time-manager-design.md), [`docs/superpowers/plans/2026-10-14-player-time-manager-1.21.1.md`](docs/superpowers/plans/2026-10-14-player-time-manager-1.21.1.md).
 
 ## Abhängigkeiten
@@ -41,13 +43,13 @@ Player Time Manager begrenzt, wie lange Spieler **insgesamt in der Welt** und **
 - **Config speichern**: nach `set(..)` immer `save()` (siehe Workspace-Bug „Config save“).
 - **Keine eigenen Argumenttypen** (Server-only: Vanilla-Clients kennen sie nicht).
 - **Attachments per Codec**, kein `INBTSerializable` (wird ab NeoForge 21.6 nicht mehr gelesen).
-- **Teleport 1.21.1**: Spieler steigt vom Reittier ab und wird allein teleportiert; ab 1.21.2 Fahrzeug mit `TeleportTransition` (Port-Plan). Bricht ein anderer Mod den Teleport ab (z. B. DimensionAccessManager), Ausweichen zum Welt-Spawn, Log-WARN und Meldung höchstens alle 5 s.
-- `PlayerRespawnPositionEvent` nutzt in 1.21.1 `DimensionTransition`, ab 1.21.2 `TeleportTransition` - beim Port anpassen. Minecraft zieht die Seelenanker-Ladung **vor** dem Event ab; beim Umleiten gibt `TimeService.refundAnchorCharge` sie zurück (`AnchorRefund`) - beim Port prüfen, ob das noch so ist.
+- **Teleport**: 1.21.1 Spieler steigt vom Reittier ab und wird allein teleportiert; ab 1.21.2 ganzes Fahrzeug mit `TeleportTransition`, außer andere Spieler sitzen mit drin. Bricht ein anderer Mod den Teleport ab (z. B. DimensionAccessManager), Ausweichen zum Welt-Spawn, Log-WARN und Meldung höchstens alle 5 s.
+- `PlayerRespawnPositionEvent` nutzt in 1.21.1 `DimensionTransition`, ab 1.21.2 `TeleportTransition`. Minecraft zieht die Seelenanker-Ladung **vor** dem Event ab; beim Umleiten gibt `TimeService.refundAnchorCharge` sie zurück (`AnchorRefund`) - beim Port prüfen, ob das noch so ist.
 - Bekannter kleiner Punkt aus dem Final Review (bewusst gelassen): Pausen bis 10 s werden mitgezählt (Schutz gegen Messfehler, siehe `TimeAccounting`). Behoben 2026-10-18: Refill-Nachholen (Grenze gilt insgesamt, `CronExpression.next` startet ab der Uhrzeit), `enabled = 1` wird gemeldet, `time get` legt keine Einträge an (`TimeService.peek`), `players add` erkennt Einträge ohne UUID (`PlayerEntries.matches`), kein Überlauf bei `Long.MAX_VALUE`.
 
 ## Testen
 
-- Unit-Tests (JUnit 5, 67): Cron, Dauern/Formate, Refill, Zählung, Ausnahmen, Config-Auflösung, Tabellen, Zielpositionen, Bossbar-Farben, Warnungen, Anker-Rückgabe. CI: Build + JUnit.
+- Unit-Tests (JUnit 5, 67 auf 1.21.1 bis 71 ab 1.21.9): Cron, Dauern/Formate, Refill, Zählung, Ausnahmen, Config-Auflösung, Tabellen, Zielpositionen, Bossbar-Farben, Warnungen, Anker-Rückgabe. CI: Build + JUnit.
 - Ingame-Testplan: [`../Docs/testing/TESTPLAN_2026-10-player-time-manager.md`](../Docs/testing/TESTPLAN_2026-10-player-time-manager.md) (Server per RCON, Client mit dem User). Server-Teile (Config, Befehle, Refill, Offline-Spieler, Persistenz) per RCON; Bossbar, Meldungen, Ton, Kick, Respawn, Singleplayer und Vanilla-Client brauchen den User.
 - Im TestPack 1.21.1: AutoRestart startet den leeren Server nach 2 min neu, DimensionAccessManager sperrt das End (Blacklist) - siehe „Stolperfallen“ in [`../Docs/testing/README.md`](../Docs/testing/README.md).
 
