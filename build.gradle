@@ -107,6 +107,8 @@ dependencies {
     //JUnit 5
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    // Config tables in unit tests (same version as NeoForge 21.1)
+    testImplementation 'com.electronwill.night-config:core:3.8.3'
 }
 
 test {
