@@ -21,6 +21,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.NameAndId;
 import net.minecraft.world.level.block.RespawnAnchorBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.portal.TeleportTransition;
@@ -206,8 +207,8 @@ public class TimeService {
 		return ExemptionChecker.state(
 			new PlayerFacts(
 				player.getUUID(),
-				player.getGameProfile().getName(),
-				server.getPlayerList().isOp( player.getGameProfile() ),
+				player.getGameProfile().name(),
+				server.getPlayerList().isOp( new NameAndId( player.getGameProfile() ) ),
 				player.isCreative(),
 				player.isSpectator()
 			),
@@ -305,10 +306,10 @@ public class TimeService {
 		boolean teleported = PlayerTeleporter.teleport( player, destination );
 		if( !teleported ) {
 			// e.g. another mod cancelled the teleport into the target dimension
-			teleported = PlayerTeleporter.teleport( player, TargetResolver.worldSpawn( server, player ) );
+			teleported = PlayerTeleporter.teleport( player, TargetResolver.worldSpawn( server, player, target -> isBlocked( player, target, now ) ) );
 		}
 		if( !teleported ) {
-			LOGGER.warn( "Player Time Manager: could not teleport {} out of {}", player.getGameProfile().getName(), dimension );
+			LOGGER.warn( "Player Time Manager: could not teleport {} out of {}", player.getGameProfile().name(), dimension );
 		}
 		Scope scope = Scope.dimension( dimension );
 		player.sendSystemMessage( Messages.dimensionExpired( Messages.scopeName( scope ), nextRefillText( scope, now ) ) );
@@ -351,7 +352,7 @@ public class TimeService {
 		
 		fillMissingUuids( player );
 		ResolvedSettings current = settings.current();
-		if( server.getPlayerList().isOp( player.getGameProfile() ) && !current.problems().isEmpty() ) {
+		if( server.getPlayerList().isOp( new NameAndId( player.getGameProfile() ) ) && !current.problems().isEmpty() ) {
 			player.sendSystemMessage( Messages.configProblems( current.problems().size() ) );
 		}
 		if( isWorldExpired( player, now ) ) {
@@ -395,8 +396,8 @@ public class TimeService {
 		if( respawn == null ) {
 			return;
 		}
-		BlockPos position = respawn.pos();
-		ServerLevel level = server.getLevel( respawn.dimension() );
+		BlockPos position = respawn.respawnData().pos();
+		ServerLevel level = server.getLevel( respawn.respawnData().dimension() );
 		if( level == null || level != transition.newLevel() ) {
 			return;
 		}
@@ -431,7 +432,7 @@ public class TimeService {
 	// Entries added by hand with only a name get their uuid on the first login of that player
 	private void fillMissingUuids( @NotNull ServerPlayer player ) {
 		
-		String name = player.getGameProfile().getName();
+		String name = player.getGameProfile().name();
 		String uuid = player.getUUID().toString();
 		List<PlayerRef> limited = settings.config().read().general().limitedPlayers();
 		List<PlayerRef> exempt = settings.config().read().general().exemptPlayers();

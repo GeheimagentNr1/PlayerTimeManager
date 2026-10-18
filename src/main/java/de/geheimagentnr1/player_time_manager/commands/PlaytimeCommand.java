@@ -1,6 +1,5 @@
 package de.geheimagentnr1.player_time_manager.commands;
 
-import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -31,6 +30,7 @@ import net.minecraft.commands.arguments.GameProfileArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.NameAndId;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -233,7 +233,7 @@ public class PlaytimeCommand {
 	
 	private int get( @NotNull CommandContext<CommandSourceStack> context, @Nullable Scope scope ) throws CommandSyntaxException {
 		
-		Collection<GameProfile> profiles = GameProfileArgument.getGameProfiles( context, "players" );
+		Collection<NameAndId> profiles = GameProfileArgument.getGameProfiles( context, "players" );
 		TimeService current = service();
 		List<Scope> scopes = scope == null ? current.activeScopes() : List.of( scope );
 		long now = System.currentTimeMillis();
@@ -243,10 +243,10 @@ public class PlaytimeCommand {
 				failure( context, Messages.noLimit( Messages.scopeName( target ) ) );
 				continue;
 			}
-			for( GameProfile profile : profiles ) {
-				Optional<TimeEntry> entry = current.peek( target, profile.getId(), now );
+			for( NameAndId profile : profiles ) {
+				Optional<TimeEntry> entry = current.peek( target, profile.id(), now );
 				if( entry.isPresent() ) {
-					success( context, Messages.timeGet( profile.getName(), Messages.scopeName( target ), DurationParser.format( entry.get().remainingMillis() ) ) );
+					success( context, Messages.timeGet( profile.name(), Messages.scopeName( target ), DurationParser.format( entry.get().remainingMillis() ) ) );
 					count++;
 				}
 			}
@@ -277,7 +277,7 @@ public class PlaytimeCommand {
 		} catch( IllegalArgumentException exception ) {
 			return failure( context, Messages.invalidValue( exception.getMessage() ) );
 		}
-		Collection<GameProfile> profiles = GameProfileArgument.getGameProfiles( context, "players" );
+		Collection<NameAndId> profiles = GameProfileArgument.getGameProfiles( context, "players" );
 		TimeService current = service();
 		long now = System.currentTimeMillis();
 		int count = 0;
@@ -286,16 +286,16 @@ public class PlaytimeCommand {
 				failure( context, Messages.noLimit( Messages.scopeName( scope ) ) );
 				continue;
 			}
-			for( GameProfile profile : profiles ) {
-				long remaining = current.entry( scope, profile.getId(), now, true ).map( TimeEntry::remainingMillis ).orElse( 0L );
+			for( NameAndId profile : profiles ) {
+				long remaining = current.entry( scope, profile.id(), now, true ).map( TimeEntry::remainingMillis ).orElse( 0L );
 				long newRemaining = switch( change ) {
 					case ADD -> remaining > Long.MAX_VALUE - millis ? Long.MAX_VALUE : remaining + millis;
 					case REMOVE -> Math.max( 0, remaining - millis );
 					case SET -> millis;
 				};
-				Optional<TimeEntry> changed = current.setRemaining( scope, profile.getId(), newRemaining, now );
+				Optional<TimeEntry> changed = current.setRemaining( scope, profile.id(), newRemaining, now );
 				if( changed.isPresent() ) {
-					success( context, Messages.timeChanged( profile.getName(), Messages.scopeName( scope ), DurationParser.format( changed.get().remainingMillis() ) ) );
+					success( context, Messages.timeChanged( profile.name(), Messages.scopeName( scope ), DurationParser.format( changed.get().remainingMillis() ) ) );
 					count++;
 				}
 			}
@@ -305,7 +305,7 @@ public class PlaytimeCommand {
 	
 	private int refill( @NotNull CommandContext<CommandSourceStack> context, @NotNull List<Scope> scopes ) throws CommandSyntaxException {
 		
-		Collection<GameProfile> profiles = GameProfileArgument.getGameProfiles( context, "players" );
+		Collection<NameAndId> profiles = GameProfileArgument.getGameProfiles( context, "players" );
 		TimeService current = service();
 		long now = System.currentTimeMillis();
 		int count = 0;
@@ -314,10 +314,10 @@ public class PlaytimeCommand {
 				failure( context, Messages.noLimit( Messages.scopeName( scope ) ) );
 				continue;
 			}
-			for( GameProfile profile : profiles ) {
-				Optional<TimeEntry> refilled = current.refillNow( scope, profile.getId(), now );
+			for( NameAndId profile : profiles ) {
+				Optional<TimeEntry> refilled = current.refillNow( scope, profile.id(), now );
 				if( refilled.isPresent() ) {
-					success( context, Messages.timeChanged( profile.getName(), Messages.scopeName( scope ), DurationParser.format( refilled.get().remainingMillis() ) ) );
+					success( context, Messages.timeChanged( profile.name(), Messages.scopeName( scope ), DurationParser.format( refilled.get().remainingMillis() ) ) );
 					count++;
 				}
 			}
@@ -344,7 +344,7 @@ public class PlaytimeCommand {
 			entries.entrySet().stream()
 				.sorted( Comparator.comparingLong( entry -> entry.getValue().remainingMillis() ) )
 				.forEach( entry -> context.getSource().sendSystemMessage( Messages.overviewLine(
-					current.server().getProfileCache().get( entry.getKey() ).map( GameProfile::getName ).orElse( entry.getKey().toString() ),
+					current.server().services().nameToIdCache().get( entry.getKey() ).map( NameAndId::name ).orElse( entry.getKey().toString() ),
 					DurationParser.format( entry.getValue().remainingMillis() )
 				) ) );
 		}
@@ -576,12 +576,12 @@ public class PlaytimeCommand {
 			) ) ) )
 			.then( Commands.literal( "add" ).then( players().executes( context -> {
 				List<PlayerRef> players = new ArrayList<>( getter.get() );
-				for( GameProfile profile : GameProfileArgument.getGameProfiles( context, "players" ) ) {
-					if( players.stream().anyMatch( player -> PlayerEntries.matches( player, profile.getName(), profile.getId().toString() ) ) ) {
-						failure( context, Messages.playerAlreadyListed( list, profile.getName() ) );
+				for( NameAndId profile : GameProfileArgument.getGameProfiles( context, "players" ) ) {
+					if( players.stream().anyMatch( player -> PlayerEntries.matches( player, profile.name(), profile.id().toString() ) ) ) {
+						failure( context, Messages.playerAlreadyListed( list, profile.name() ) );
 					} else {
-						players.add( new PlayerRef( profile.getName(), profile.getId().toString() ) );
-						success( context, Messages.playerAdded( list, profile.getName() ) );
+						players.add( new PlayerRef( profile.name(), profile.id().toString() ) );
+						success( context, Messages.playerAdded( list, profile.name() ) );
 					}
 				}
 				setter.accept( players );
@@ -590,12 +590,12 @@ public class PlaytimeCommand {
 			} ) ) )
 			.then( Commands.literal( "remove" ).then( players().executes( context -> {
 				List<PlayerRef> players = new ArrayList<>( getter.get() );
-				for( GameProfile profile : GameProfileArgument.getGameProfiles( context, "players" ) ) {
-					boolean removed = players.removeIf( player -> PlayerEntries.matches( player, profile.getName(), profile.getId().toString() ) );
+				for( NameAndId profile : GameProfileArgument.getGameProfiles( context, "players" ) ) {
+					boolean removed = players.removeIf( player -> PlayerEntries.matches( player, profile.name(), profile.id().toString() ) );
 					if( removed ) {
-						success( context, Messages.playerRemoved( list, profile.getName() ) );
+						success( context, Messages.playerRemoved( list, profile.name() ) );
 					} else {
-						failure( context, Messages.playerNotListed( list, profile.getName() ) );
+						failure( context, Messages.playerNotListed( list, profile.name() ) );
 					}
 				}
 				setter.accept( players );
