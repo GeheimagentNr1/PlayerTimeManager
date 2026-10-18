@@ -2,6 +2,7 @@ package de.geheimagentnr1.player_time_manager;
 
 import de.geheimagentnr1.player_time_manager.config.ServerConfig;
 import de.geheimagentnr1.player_time_manager.config.SettingsHolder;
+import de.geheimagentnr1.player_time_manager.data.LegacyAttachmentMigration;
 import de.geheimagentnr1.player_time_manager.data.ModAttachmentTypes;
 import de.geheimagentnr1.player_time_manager.handlers.ConfigReloadHandler;
 import de.geheimagentnr1.player_time_manager.handlers.GameEventHandler;
@@ -29,5 +30,6 @@ public class PlayerTimeManager {
 		ModAttachmentTypes.ATTACHMENT_TYPES.register( modEventBus );
 		modEventBus.register( new ConfigReloadHandler( settings, serverConfig.getSpec() ) );
 		NeoForge.EVENT_BUS.register( new GameEventHandler( settings ) );
+		NeoForge.EVENT_BUS.register( new LegacyAttachmentMigration() );
 	}
 }

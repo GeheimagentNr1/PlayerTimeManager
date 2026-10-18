@@ -36,7 +36,7 @@ public class DisplayManager {
 			case ACTIONBAR -> {
 				remove( player );
 				if( !statuses.isEmpty() ) {
-					player.displayClientMessage( actionbar( statuses ), true );
+					player.sendOverlayMessage( actionbar( statuses ) );
 				}
 			}
 			case BOSSBARS -> showBossbars( player, statuses, settings );
@@ -76,7 +76,7 @@ public class DisplayManager {
 		for( ScopeStatus status : statuses ) {
 			ServerBossEvent bar = playerBars.computeIfAbsent(
 				status.scope(),
-				scope -> new ServerBossEvent( Component.empty(), BossEvent.BossBarColor.GREEN, BossEvent.BossBarOverlay.PROGRESS )
+				scope -> new ServerBossEvent( UUID.randomUUID(), Component.empty(), BossEvent.BossBarColor.GREEN, BossEvent.BossBarOverlay.PROGRESS )
 			);
 			// After a respawn the player is a new object, the bossbar has to be sent to it again
 			if( !bar.getPlayers().contains( player ) ) {
