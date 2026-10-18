@@ -11,13 +11,18 @@ import de.geheimagentnr1.player_time_manager.data.TimeStore;
 import de.geheimagentnr1.player_time_manager.display.DisplayManager;
 import de.geheimagentnr1.player_time_manager.display.ScopeStatus;
 import de.geheimagentnr1.player_time_manager.display.WarningTracker;
+import de.geheimagentnr1.player_time_manager.teleport.AnchorRefund;
 import de.geheimagentnr1.player_time_manager.teleport.Destination;
 import de.geheimagentnr1.player_time_manager.teleport.PlayerTeleporter;
 import de.geheimagentnr1.player_time_manager.teleport.TargetResolver;
 import de.geheimagentnr1.player_time_manager.text.Messages;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.block.RespawnAnchorBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.portal.DimensionTransition;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -352,6 +357,7 @@ public class TimeService {
 	public Optional<DimensionTransition> redirectRespawn(
 		@NotNull ServerPlayer player,
 		@NotNull DimensionTransition transition,
+		boolean fromEndFight,
 		long now ) {
 		
 		String dimension = transition.newLevel().dimension().location().toString();
@@ -359,6 +365,7 @@ public class TimeService {
 			return Optional.empty();
 		}
 		Destination destination = destination( player, dimension, now );
+		refundAnchorCharge( player, transition, fromEndFight );
 		redirectedRespawns.put( player.getUUID(), dimension );
 		return Optional.of( new DimensionTransition(
 			destination.level(),
@@ -368,6 +375,20 @@ public class TimeService {
 			destination.pitch(),
 			DimensionTransition.DO_NOTHING
 		) );
+	}
+	
+	private void refundAnchorCharge( @NotNull ServerPlayer player, @NotNull DimensionTransition transition, boolean fromEndFight ) {
+		
+		BlockPos position = player.getRespawnPosition();
+		ServerLevel level = server.getLevel( player.getRespawnDimension() );
+		if( position == null || level == null || level != transition.newLevel() ) {
+			return;
+		}
+		BlockState state = level.getBlockState( position );
+		if( AnchorRefund.isNeeded( state.getBlock() instanceof RespawnAnchorBlock, player.isRespawnForced(), fromEndFight ) ) {
+			int charge = state.getValue( RespawnAnchorBlock.CHARGE );
+			level.setBlock( position, state.setValue( RespawnAnchorBlock.CHARGE, AnchorRefund.refundedCharge( charge ) ), 3 );
+		}
 	}
 	
 	public void onRespawn( @NotNull ServerPlayer player, long now ) {
