@@ -3,7 +3,7 @@ package de.geheimagentnr1.player_time_manager.data;
 import de.geheimagentnr1.player_time_manager.time.Scope;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import org.jetbrains.annotations.NotNull;
@@ -31,7 +31,7 @@ public final class TimeStore {
 	@Nullable
 	public static ServerLevel level( @NotNull MinecraftServer server, @NotNull String dimension ) {
 		
-		ResourceLocation location = ResourceLocation.tryParse( dimension );
+		Identifier location = Identifier.tryParse( dimension );
 		return location == null ? null : server.getLevel( ResourceKey.create( Registries.DIMENSION, location ) );
 	}
 }

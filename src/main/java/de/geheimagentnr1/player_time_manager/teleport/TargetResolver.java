@@ -66,7 +66,7 @@ public final class TargetResolver {
 		LevelData.RespawnData respawn = server.getRespawnData();
 		ServerLevel level = server.findRespawnDimension();
 		BlockPos position = respawn.pos();
-		if( !SpawnChoice.useWorldSpawnDimension( level.dimension().location().toString(), blockedDimension ) ) {
+		if( !SpawnChoice.useWorldSpawnDimension( level.dimension().identifier().toString(), blockedDimension ) ) {
 			// Same x/z on the surface of the Overworld, which can't be limited
 			level = server.overworld();
 			position = level.getHeightmapPos( Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, position );

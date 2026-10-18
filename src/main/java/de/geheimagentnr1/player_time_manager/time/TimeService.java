@@ -253,7 +253,7 @@ public class TimeService {
 			display.remove( player );
 			return;
 		}
-		String dimension = player.level().dimension().location().toString();
+		String dimension = player.level().dimension().identifier().toString();
 		List<ScopeStatus> statuses = new ArrayList<>();
 		boolean worldExpired = false;
 		boolean dimensionExpired = false;
@@ -359,7 +359,7 @@ public class TimeService {
 			kick( player, now );
 			return;
 		}
-		String dimension = player.level().dimension().location().toString();
+		String dimension = player.level().dimension().identifier().toString();
 		if( isBlocked( player, dimension, now ) ) {
 			sendOutOfDimension( player, dimension, now, true );
 		}
@@ -373,7 +373,7 @@ public class TimeService {
 		boolean fromEndFight,
 		long now ) {
 		
-		String dimension = transition.newLevel().dimension().location().toString();
+		String dimension = transition.newLevel().dimension().identifier().toString();
 		if( !isBlocked( player, dimension, now ) ) {
 			return Optional.empty();
 		}
@@ -415,7 +415,7 @@ public class TimeService {
 			Scope scope = Scope.dimension( redirectedFrom );
 			player.sendSystemMessage( Messages.dimensionExpired( Messages.scopeName( scope ), nextRefillText( scope, now ) ) );
 		}
-		String dimension = player.level().dimension().location().toString();
+		String dimension = player.level().dimension().identifier().toString();
 		if( isBlocked( player, dimension, now ) ) {
 			sendOutOfDimension( player, dimension, now, true );
 		}

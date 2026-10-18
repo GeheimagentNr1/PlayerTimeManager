@@ -6,6 +6,7 @@ import de.geheimagentnr1.player_time_manager.time.DurationParser;
 import de.geheimagentnr1.player_time_manager.time.Scope;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -105,7 +106,17 @@ public class DisplayManager {
 		
 		player.sendSystemMessage( Messages.warning( DurationParser.format( thresholdMillis ), Messages.scopeName( scope ) ) );
 		if( settings.warningSound() ) {
-			player.playNotifySound( SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.MASTER, 1.0F, 1.0F );
+			// Minecraft 1.21.11 removed playNotifySound, which sent exactly this packet to the player only
+			player.connection.send( new ClientboundSoundPacket(
+				SoundEvents.NOTE_BLOCK_BELL,
+				SoundSource.MASTER,
+				player.getX(),
+				player.getY(),
+				player.getZ(),
+				1.0F,
+				1.0F,
+				player.getRandom().nextLong()
+			) );
 		}
 	}
 	

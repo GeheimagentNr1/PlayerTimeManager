@@ -55,7 +55,7 @@ public class SettingsHolder {
 	public List<String> reload( @NotNull MinecraftServer server ) {
 		
 		Set<String> knownDimensions = server.levelKeys().stream()
-			.map( key -> key.location().toString() )
+			.map( key -> key.identifier().toString() )
 			.collect( Collectors.toSet() );
 		ResolvedSettings settings = SettingsResolver.resolve( config.read(), knownDimensions, ZoneId.systemDefault() );
 		current = settings;

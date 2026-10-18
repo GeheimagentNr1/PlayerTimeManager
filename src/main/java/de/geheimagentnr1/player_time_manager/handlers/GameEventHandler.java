@@ -75,7 +75,7 @@ public class GameEventHandler {
 		
 		TimeService current = service;
 		if( current != null && event.getEntity() instanceof ServerPlayer player ) {
-			String dimension = event.getDimension().location().toString();
+			String dimension = event.getDimension().identifier().toString();
 			long now = System.currentTimeMillis();
 			if( current.isBlocked( player, dimension, now ) ) {
 				event.setCanceled( true );

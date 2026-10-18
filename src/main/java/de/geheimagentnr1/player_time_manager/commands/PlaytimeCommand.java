@@ -28,8 +28,11 @@ import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.DimensionArgument;
 import net.minecraft.commands.arguments.GameProfileArgument;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permission;
+import net.minecraft.server.permissions.PermissionCheck;
+import net.minecraft.server.permissions.PermissionLevel;
 import net.minecraft.server.players.NameAndId;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -135,7 +138,17 @@ public class PlaytimeCommand {
 	
 	private boolean isAdmin( @NotNull CommandSourceStack source ) {
 		
-		return settings.isLoaded() && source.hasPermission( settings.current().commandPermissionLevel() );
+		return settings.isLoaded() && Commands.hasPermission( permissionCheck( settings.current().commandPermissionLevel() ) ).test( source );
+	}
+	
+	// Minecraft 1.21.11: permission levels are checked through the permission system
+	@NotNull
+	private static PermissionCheck permissionCheck( int level ) {
+		
+		PermissionLevel permissionLevel = PermissionLevel.byId( level );
+		return permissionLevel == PermissionLevel.ALL
+			? Commands.LEVEL_ALL
+			: new PermissionCheck.Require( new Permission.HasCommandLevel( permissionLevel ) );
 	}
 	
 	@NotNull
@@ -161,7 +174,7 @@ public class PlaytimeCommand {
 	}
 	
 	@NotNull
-	private static RequiredArgumentBuilder<CommandSourceStack, ResourceLocation> dimension() {
+	private static RequiredArgumentBuilder<CommandSourceStack, Identifier> dimension() {
 		
 		return Commands.argument( "dimension", DimensionArgument.dimension() );
 	}
@@ -169,7 +182,7 @@ public class PlaytimeCommand {
 	@NotNull
 	private static String dimensionId( @NotNull CommandContext<CommandSourceStack> context, @NotNull String name ) throws CommandSyntaxException {
 		
-		return DimensionArgument.getDimension( context, name ).dimension().location().toString();
+		return DimensionArgument.getDimension( context, name ).dimension().identifier().toString();
 	}
 	
 	@NotNull
@@ -535,7 +548,7 @@ public class PlaytimeCommand {
 	private int targetHere( @NotNull CommandContext<CommandSourceStack> context ) throws CommandSyntaxException {
 		
 		ServerPlayer player = context.getSource().getPlayerOrException();
-		String targetDimension = player.level().dimension().location().toString();
+		String targetDimension = player.level().dimension().identifier().toString();
 		String position = new TargetPosition( player.getX(), player.getY(), player.getZ(), player.getYRot(), player.getXRot() ).format();
 		return setTarget( context, targetDimension, position );
 	}
