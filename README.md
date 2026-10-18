@@ -1,7 +1,7 @@
-# ManyIdeas Doors
+# Player Time Manager
 
 This is a Minecraft NeoForge mod.  
-A mod description can be found on [CurseForge](https://www.curseforge.com/minecraft/mc-mods/many-ideas-doors).  
+A mod description can be found on [CurseForge](https://www.curseforge.com/minecraft/mc-mods/player-time-manager) and [Modrinth](https://modrinth.com/mod/player-time-manager).  
 This is a combined work only using and not modifying used libraries.
 
 ## Used libraries
@@ -10,7 +10,7 @@ The mentions of the used libraries, their licences and their copyright holders c
 Because in the master branch is no source code, lib_licences cannot be found in this branch.  
 Direct dependent libraries are metioned here:
 
-### Minecraft Forge
+### NeoForge
 
 This Minecraft NeoForge mod uses [NeoForge](https://github.com/neoforged/NeoForge) as mod launcher with the [GNU LGPLv2.1](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html)  
 A description how to use differnt versions of Minecraft Forge can be found here: [https://github.com/neoforged/NeoForge](https://github.com/neoforged/NeoForge)
