@@ -1,6 +1,7 @@
 package de.geheimagentnr1.player_time_manager.data;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import de.geheimagentnr1.player_time_manager.time.TimeEntry;
 import net.minecraft.core.UUIDUtil;
@@ -24,7 +25,8 @@ public class TimeData {
 	).apply( instance, TimeEntry::new ) );
 	
 	@NotNull
-	public static final Codec<TimeData> CODEC = Codec.unboundedMap( UUIDUtil.STRING_CODEC, ENTRY_CODEC )
+	// Same format as the Codec.unboundedMap of 1.21.1 - 1.21.5: the uuids are the keys of the attachment tag
+	public static final MapCodec<TimeData> CODEC = FlatMapCodec.of( UUIDUtil.STRING_CODEC, ENTRY_CODEC )
 		.xmap( TimeData::new, TimeData::entries );
 	
 	@NotNull
