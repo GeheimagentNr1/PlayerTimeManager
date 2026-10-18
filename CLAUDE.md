@@ -42,11 +42,12 @@ Player Time Manager begrenzt, wie lange Spieler **insgesamt in der Welt** und **
 - **Keine eigenen Argumenttypen** (Server-only: Vanilla-Clients kennen sie nicht).
 - **Attachments per Codec**, kein `INBTSerializable` (wird ab NeoForge 21.6 nicht mehr gelesen).
 - **Teleport 1.21.1**: Spieler steigt vom Reittier ab und wird allein teleportiert; ab 1.21.2 Fahrzeug mit `TeleportTransition` (Port-Plan). Bricht ein anderer Mod den Teleport ab (z. B. DimensionAccessManager), Ausweichen zum Welt-Spawn, Log-WARN und Meldung höchstens alle 5 s.
-- `PlayerRespawnPositionEvent` nutzt in 1.21.1 `DimensionTransition`, ab 1.21.2 `TeleportTransition` - beim Port anpassen.
+- `PlayerRespawnPositionEvent` nutzt in 1.21.1 `DimensionTransition`, ab 1.21.2 `TeleportTransition` - beim Port anpassen. Minecraft zieht die Seelenanker-Ladung **vor** dem Event ab; beim Umleiten gibt `TimeService.refundAnchorCharge` sie zurück (`AnchorRefund`) - beim Port prüfen, ob das noch so ist.
+- Bekannte kleine Punkte aus dem Final Review (zurückgestellt): Welt-Spawn ohne Vanilla-`adjustSpawnLocation`, Refill-Nachholen bei Cron unter einer Stunde nach langer Pause langsam, Pausen bis 10 s zählen, `enabled = 1` still `false`, `time get` legt Einträge an, `players add` kann Doppeleinträge erzeugen, Überlauf bei `Long.MAX_VALUE`.
 
 ## Testen
 
-- Unit-Tests (JUnit 5, 61): Cron, Dauern/Formate, Refill, Zählung, Ausnahmen, Config-Auflösung, Tabellen, Zielpositionen, Bossbar-Farben, Warnungen. CI: Build + JUnit.
+- Unit-Tests (JUnit 5, 63): Cron, Dauern/Formate, Refill, Zählung, Ausnahmen, Config-Auflösung, Tabellen, Zielpositionen, Bossbar-Farben, Warnungen, Anker-Rückgabe. CI: Build + JUnit.
 - Ingame-Testplan: [`../Docs/testing/TESTPLAN_2026-10-player-time-manager.md`](../Docs/testing/TESTPLAN_2026-10-player-time-manager.md) (Server per RCON, Client mit dem User). Server-Teile (Config, Befehle, Refill, Offline-Spieler, Persistenz) per RCON; Bossbar, Meldungen, Ton, Kick, Respawn, Singleplayer und Vanilla-Client brauchen den User.
 - Im TestPack 1.21.1: AutoRestart startet den leeren Server nach 2 min neu, DimensionAccessManager sperrt das End (Blacklist) - siehe „Stolperfallen“ in [`../Docs/testing/README.md`](../Docs/testing/README.md).
 
