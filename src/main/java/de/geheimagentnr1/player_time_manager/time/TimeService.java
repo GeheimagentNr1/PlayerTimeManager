@@ -23,7 +23,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.RespawnAnchorBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.portal.DimensionTransition;
+import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -366,9 +366,9 @@ public class TimeService {
 	
 	// Called before the respawn, so the player doesn't appear in the blocked dimension first
 	@NotNull
-	public Optional<DimensionTransition> redirectRespawn(
+	public Optional<TeleportTransition> redirectRespawn(
 		@NotNull ServerPlayer player,
-		@NotNull DimensionTransition transition,
+		@NotNull TeleportTransition transition,
 		boolean fromEndFight,
 		long now ) {
 		
@@ -379,17 +379,17 @@ public class TimeService {
 		Destination destination = destination( player, dimension, now );
 		refundAnchorCharge( player, transition, fromEndFight );
 		redirectedRespawns.put( player.getUUID(), dimension );
-		return Optional.of( new DimensionTransition(
+		return Optional.of( new TeleportTransition(
 			destination.level(),
 			destination.position(),
 			Vec3.ZERO,
 			destination.yaw(),
 			destination.pitch(),
-			DimensionTransition.DO_NOTHING
+			TeleportTransition.DO_NOTHING
 		) );
 	}
 	
-	private void refundAnchorCharge( @NotNull ServerPlayer player, @NotNull DimensionTransition transition, boolean fromEndFight ) {
+	private void refundAnchorCharge( @NotNull ServerPlayer player, @NotNull TeleportTransition transition, boolean fromEndFight ) {
 		
 		BlockPos position = player.getRespawnPosition();
 		ServerLevel level = server.getLevel( player.getRespawnDimension() );

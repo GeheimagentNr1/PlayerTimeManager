@@ -96,8 +96,8 @@ public class GameEventHandler {
 	public void handleRespawnPosition( @NotNull PlayerRespawnPositionEvent event ) {
 		
 		if( service != null && event.getEntity() instanceof ServerPlayer player ) {
-			service.redirectRespawn( player, event.getDimensionTransition(), event.isFromEndFight(), System.currentTimeMillis() )
-				.ifPresent( event::setDimensionTransition );
+			service.redirectRespawn( player, event.getTeleportTransition(), event.isFromEndFight(), System.currentTimeMillis() )
+				.ifPresent( event::setTeleportTransition );
 		}
 	}
 	

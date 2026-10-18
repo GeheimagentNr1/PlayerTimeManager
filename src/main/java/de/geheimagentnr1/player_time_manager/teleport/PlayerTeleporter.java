@@ -1,7 +1,12 @@
 package de.geheimagentnr1.player_time_manager.teleport;
 
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.portal.TeleportTransition;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Set;
 
 
 public final class PlayerTeleporter {
@@ -11,22 +16,37 @@ public final class PlayerTeleporter {
 	
 	}
 	
-	// Minecraft 1.21.1: a vehicle with a player can't change the dimension, so the player always dismounts
-	// (from 1.21.2 the whole vehicle can be teleported, see the port plan)
+	// A ridden vehicle is teleported with all passengers like through a portal, unless other players ride it, too
 	public static boolean teleport( @NotNull ServerPlayer player, @NotNull Destination destination ) {
 		
 		if( player.isSleeping() ) {
 			player.stopSleepInBed( true, true );
 		}
-		player.stopRiding();
-		player.teleportTo(
-			destination.level(),
-			destination.position().x(),
-			destination.position().y(),
-			destination.position().z(),
-			destination.yaw(),
-			destination.pitch()
-		);
+		Entity vehicle = player.getRootVehicle();
+		boolean riding = vehicle != player;
+		int otherPlayerPassengers = riding ? vehicle.countPlayerPassengers() - 1 : 0;
+		if( TeleportPlan.decide( riding, otherPlayerPassengers ) == TeleportPlan.Mode.WHOLE_VEHICLE ) {
+			vehicle.teleport( new TeleportTransition(
+				destination.level(),
+				destination.position(),
+				Vec3.ZERO,
+				destination.yaw(),
+				destination.pitch(),
+				TeleportTransition.DO_NOTHING
+			) );
+		} else {
+			player.stopRiding();
+			player.teleportTo(
+				destination.level(),
+				destination.position().x(),
+				destination.position().y(),
+				destination.position().z(),
+				Set.of(),
+				destination.yaw(),
+				destination.pitch(),
+				true
+			);
+		}
 		return player.level() == destination.level();
 	}
 }
