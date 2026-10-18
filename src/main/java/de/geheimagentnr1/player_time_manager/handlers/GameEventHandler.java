@@ -1,11 +1,11 @@
 package de.geheimagentnr1.player_time_manager.handlers;
 
-//import de.geheimagentnr1.player_time_manager.commands.PlaytimeCommand;
+import de.geheimagentnr1.player_time_manager.commands.PlaytimeCommand;
 import de.geheimagentnr1.player_time_manager.config.SettingsHolder;
 import de.geheimagentnr1.player_time_manager.time.TimeService;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
-//import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.EntityTravelToDimensionEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
@@ -107,9 +107,9 @@ public class GameEventHandler {
 		}
 	}
 	
-//	@SubscribeEvent
-//	public void handleRegisterCommands( @NotNull RegisterCommandsEvent event ) {
-//		
-//		event.getDispatcher().register( new PlaytimeCommand( settings, this::service ).build() );
-//	}
+	@SubscribeEvent
+	public void handleRegisterCommands( @NotNull RegisterCommandsEvent event ) {
+		
+		event.getDispatcher().register( new PlaytimeCommand( settings, this::service ).build() );
+	}
 }
