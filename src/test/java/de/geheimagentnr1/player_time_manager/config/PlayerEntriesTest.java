@@ -27,4 +27,12 @@ class PlayerEntriesTest {
 		assertTrue( ConfigTables.isTable( com.electronwill.nightconfig.core.Config.inMemory() ) );
 		assertFalse( ConfigTables.isTable( "minecraft:the_nether" ) );
 	}
+	
+	@Test
+	void matchesByUuidOrByNameWithoutUuid() {
+		
+		assertTrue( PlayerEntries.matches( new PlayerRef( "Alex", "u1" ), "Steve", "u1" ) );
+		assertTrue( PlayerEntries.matches( new PlayerRef( "Steve", "" ), "steve", "u1" ) );
+		assertFalse( PlayerEntries.matches( new PlayerRef( "Steve", "u2" ), "Steve", "u1" ) );
+	}
 }

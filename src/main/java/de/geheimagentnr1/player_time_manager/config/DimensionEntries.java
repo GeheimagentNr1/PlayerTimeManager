@@ -4,6 +4,7 @@ import de.geheimagentnr1.player_time_manager.config.raw.DimensionRaw;
 import de.geheimagentnr1.player_time_manager.config.raw.ScopeRaw;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -37,19 +38,33 @@ public final class DimensionEntries {
 	@NotNull
 	public static DimensionRaw fromValues( @NotNull Map<String, ?> values ) {
 		
+		List<String> invalidValues = new ArrayList<>();
 		return new DimensionRaw(
 			string( values, "dimension", "" ),
 			new ScopeRaw(
-				bool( values, "enabled", false ),
+				checkedBool( values, "enabled", invalidValues ),
 				string( values, "limit", "1h" ),
-				bool( values, "use_custom_refill", false ),
+				checkedBool( values, "use_custom_refill", invalidValues ),
 				string( values, "refill_cron", "0 6 * * *" ),
 				string( values, "refill_mode", "SET" ),
 				string( values, "refill_max", "" )
 			),
 			string( values, "target_dimension", SettingsResolver.OVERWORLD ),
-			string( values, "target_position", "" )
+			string( values, "target_position", "" ),
+			List.copyOf( invalidValues )
 		);
+	}
+	
+	// A value that is no boolean is read as false and reported by the SettingsResolver
+	private static boolean checkedBool( @NotNull Map<String, ?> values, @NotNull String key, @NotNull List<String> invalidValues ) {
+		
+		Object value = values.get( key );
+		boolean valid = value == null || value instanceof Boolean
+			|| value instanceof String text && ( text.equalsIgnoreCase( "true" ) || text.equalsIgnoreCase( "false" ) );
+		if( !valid ) {
+			invalidValues.add( key + " = " + value );
+		}
+		return bool( values, key, false );
 	}
 	
 	@NotNull

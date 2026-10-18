@@ -187,4 +187,12 @@ class SettingsResolverTest {
 		RawSettings raw = new RawSettings( general( "0 6 * * *", List.of(), List.of(), "America/New_York", 50, 10 ), scope( false, "2h" ), List.of() );
 		assertEquals( ZoneId.of( "America/New_York" ), resolve( raw ).zone() );
 	}
+	
+	@Test
+	void reportsNonBooleanValuesOfADimension() {
+		
+		DimensionRaw nether = DimensionEntries.fromValues( java.util.Map.of( "dimension", "minecraft:the_nether", "enabled", 1 ) );
+		ResolvedSettings settings = resolve( settings( scope( false, "2h" ), nether ) );
+		assertTrue( hasProblem( settings, "dimensions[0] (\"minecraft:the_nether\").enabled = 1" ) );
+	}
 }

@@ -54,4 +54,14 @@ class DimensionEntriesTest {
 		assertEquals( List.of( "minecraft:the_nether", "minecraft:the_end" ), defaults.stream().map( DimensionRaw::dimension ).toList() );
 		defaults.forEach( dimension -> assertFalse( dimension.scope().enabled() ) );
 	}
+	
+	@Test
+	void nonBooleanValuesAreReportedAndReadAsFalse() {
+		
+		DimensionRaw raw = DimensionEntries.fromValues( Map.of( "dimension", "minecraft:the_end", "enabled", 1, "use_custom_refill", "yes" ) );
+		assertFalse( raw.scope().enabled() );
+		assertFalse( raw.scope().useCustomRefill() );
+		assertEquals( java.util.List.of( "enabled = 1", "use_custom_refill = yes" ), raw.invalidValues() );
+		assertEquals( java.util.List.of(), DimensionEntries.fromValues( Map.of( "dimension", "minecraft:the_end", "enabled", true ) ).invalidValues() );
+	}
 }

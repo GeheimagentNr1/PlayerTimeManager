@@ -69,6 +69,9 @@ public final class SettingsResolver {
 			DimensionRaw entry = entries.get( i );
 			String id = entry.dimension().trim();
 			String prefix = String.format( "dimensions[%d] (\"%s\")", i, id );
+			for( String invalidValue : entry.invalidValues() ) {
+				problems.add( prefix + "." + invalidValue + ": expected true or false - false is used" );
+			}
 			if( id.isEmpty() ) {
 				problems.add( prefix + ": dimension is empty - entry ignored" );
 			} else if( id.equals( OVERWORLD ) ) {

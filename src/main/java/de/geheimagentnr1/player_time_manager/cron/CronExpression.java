@@ -206,8 +206,12 @@ public final class CronExpression {
 			if( !months.get( date.getMonthValue() ) || !dayMatches( date ) ) {
 				continue;
 			}
-			for( int hour = hours.nextSetBit( 0 ); hour >= 0; hour = hours.nextSetBit( hour + 1 ) ) {
-				for( int minute = minutes.nextSetBit( 0 ); minute >= 0; minute = minutes.nextSetBit( minute + 1 ) ) {
+			// On the first day, times before "after" can't match, so the scan starts at its hour and minute
+			boolean firstDay = day == 0;
+			int firstHour = firstDay ? after.getHour() : 0;
+			for( int hour = hours.nextSetBit( firstHour ); hour >= 0; hour = hours.nextSetBit( hour + 1 ) ) {
+				int firstMinute = firstDay && hour == after.getHour() ? after.getMinute() : 0;
+				for( int minute = minutes.nextSetBit( firstMinute ); minute >= 0; minute = minutes.nextSetBit( minute + 1 ) ) {
 					LocalDateTime local = date.atTime( hour, minute );
 					ZonedDateTime candidate = ZonedDateTime.ofLocal( local, zone, null );
 					if( candidate.toLocalDateTime().equals( local ) && candidate.isAfter( after ) ) {

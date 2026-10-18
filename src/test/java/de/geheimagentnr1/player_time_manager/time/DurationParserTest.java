@@ -69,4 +69,11 @@ class DurationParserTest {
 		java.time.ZonedDateTime time = java.time.ZonedDateTime.of( 2026, 10, 19, 6, 0, 0, 0, java.time.ZoneId.of( "Europe/Berlin" ) );
 		assertEquals( "19.10.2026 06:00", DurationParser.formatDateTime( time ) );
 	}
+
+	@Test
+	void formatsTheLargestDurationWithoutOverflow() {
+
+		assertEquals( "2562047788015h 12m 56s", DurationParser.format( Long.MAX_VALUE ) );
+		assertEquals( "106751991167d 07:12:56", DurationParser.formatClock( Long.MAX_VALUE ) );
+	}
 }

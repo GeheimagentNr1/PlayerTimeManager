@@ -100,7 +100,9 @@ class RefillCalculatorTest {
 		TimeEntry entry = new TimeEntry( 0, at( 1, 0, 0 ), "* * * * *" );
 		TimeEntry result = RefillCalculator.apply( entry, rule, at( 31, 0, 0 ), BERLIN );
 		assertEquals( RefillCalculator.MAX_CATCH_UP * 1_000L, result.remainingMillis() );
-		assertEquals( at( 1, 0, 0 ) + RefillCalculator.MAX_CATCH_UP * MINUTE, result.lastRefillMillis() );
+		// The rest is dropped: the next call must not catch up another batch
+		assertEquals( at( 31, 0, 0 ), result.lastRefillMillis() );
+		assertEquals( result, RefillCalculator.apply( result, rule, at( 31, 0, 0 ), BERLIN ) );
 	}
 	
 	@Test

@@ -130,6 +130,18 @@ public class TimeService {
 		return Optional.of( entry );
 	}
 	
+	// Like entry, but a player without an entry only gets a preview (full limit), nothing is stored
+	@NotNull
+	public Optional<TimeEntry> peek( @NotNull Scope scope, @NotNull UUID player, long now ) {
+		
+		Optional<TimeEntry> existing = entry( scope, player, now, false );
+		ResolvedScope scopeSettings = scopeSettings( scope );
+		if( existing.isPresent() || !scopeSettings.active() || scopeSettings.refillRule() == null ) {
+			return existing;
+		}
+		return Optional.of( RefillCalculator.create( scopeSettings.refillRule(), now ) );
+	}
+	
 	@NotNull
 	private Optional<TimeEntry> update( @NotNull Scope scope, @NotNull UUID player, long now, @NotNull UnaryOperator<TimeEntry> change ) {
 		

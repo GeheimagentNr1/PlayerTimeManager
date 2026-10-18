@@ -21,6 +21,12 @@ public final class PlayerEntries {
 	}
 	
 	@NotNull
+	public static boolean matches( @NotNull PlayerRef player, @NotNull String name, @NotNull String uuid ) {
+		
+		return player.uuid().equals( uuid ) || player.uuid().isBlank() && player.name().equalsIgnoreCase( name );
+	}
+	
+	@NotNull
 	public static PlayerRef fromValues( @NotNull Map<String, ?> values ) {
 		
 		return new PlayerRef( DimensionEntries.string( values, "name", "" ), DimensionEntries.string( values, "uuid", "" ) );

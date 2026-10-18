@@ -45,7 +45,7 @@ public final class DurationParser {
 	@NotNull
 	public static String format( long millis ) {
 
-		long totalSeconds = millis <= 0 ? 0 : ( millis + 999 ) / 1000;
+		long totalSeconds = secondsRoundedUp( millis );
 		long hours = totalSeconds / 3600;
 		long minutes = totalSeconds % 3600 / 60;
 		long seconds = totalSeconds % 60;
@@ -66,7 +66,7 @@ public final class DurationParser {
 	@NotNull
 	public static String formatClock( long millis ) {
 		
-		long totalSeconds = millis <= 0 ? 0 : ( millis + 999 ) / 1000;
+		long totalSeconds = secondsRoundedUp( millis );
 		long days = totalSeconds / 86400;
 		long hours = totalSeconds % 86400 / 3600;
 		long minutes = totalSeconds % 3600 / 60;
@@ -84,6 +84,12 @@ public final class DurationParser {
 	public static String formatDateTime( @NotNull ZonedDateTime time ) {
 		
 		return DATE_TIME.format( time );
+	}
+	
+	// Without "millis + 999", which overflows for Long.MAX_VALUE
+	private static long secondsRoundedUp( long millis ) {
+		
+		return millis <= 0 ? 0 : millis / 1000 + ( millis % 1000 == 0 ? 0 : 1 );
 	}
 	
 	private static void append( @NotNull StringBuilder builder, long value, char unit ) {

@@ -11,6 +11,7 @@ import de.geheimagentnr1.player_time_manager.config.DimensionEntries;
 import de.geheimagentnr1.player_time_manager.config.ServerConfig;
 import de.geheimagentnr1.player_time_manager.config.SettingsHolder;
 import de.geheimagentnr1.player_time_manager.config.SettingsResolver;
+import de.geheimagentnr1.player_time_manager.config.PlayerEntries;
 import de.geheimagentnr1.player_time_manager.config.TargetPosition;
 import de.geheimagentnr1.player_time_manager.config.raw.DimensionRaw;
 import de.geheimagentnr1.player_time_manager.config.raw.PlayerRef;
@@ -243,7 +244,7 @@ public class PlaytimeCommand {
 				continue;
 			}
 			for( GameProfile profile : profiles ) {
-				Optional<TimeEntry> entry = current.entry( target, profile.getId(), now, true );
+				Optional<TimeEntry> entry = current.peek( target, profile.getId(), now );
 				if( entry.isPresent() ) {
 					success( context, Messages.timeGet( profile.getName(), Messages.scopeName( target ), DurationParser.format( entry.get().remainingMillis() ) ) );
 					count++;
@@ -576,7 +577,7 @@ public class PlaytimeCommand {
 			.then( Commands.literal( "add" ).then( players().executes( context -> {
 				List<PlayerRef> players = new ArrayList<>( getter.get() );
 				for( GameProfile profile : GameProfileArgument.getGameProfiles( context, "players" ) ) {
-					if( players.stream().anyMatch( player -> player.uuid().equals( profile.getId().toString() ) ) ) {
+					if( players.stream().anyMatch( player -> PlayerEntries.matches( player, profile.getName(), profile.getId().toString() ) ) ) {
 						failure( context, Messages.playerAlreadyListed( list, profile.getName() ) );
 					} else {
 						players.add( new PlayerRef( profile.getName(), profile.getId().toString() ) );
@@ -590,8 +591,7 @@ public class PlaytimeCommand {
 			.then( Commands.literal( "remove" ).then( players().executes( context -> {
 				List<PlayerRef> players = new ArrayList<>( getter.get() );
 				for( GameProfile profile : GameProfileArgument.getGameProfiles( context, "players" ) ) {
-					boolean removed = players.removeIf( player -> player.uuid().equals( profile.getId().toString() )
-						|| player.uuid().isBlank() && player.name().equalsIgnoreCase( profile.getName() ) );
+					boolean removed = players.removeIf( player -> PlayerEntries.matches( player, profile.getName(), profile.getId().toString() ) );
 					if( removed ) {
 						success( context, Messages.playerRemoved( list, profile.getName() ) );
 					} else {

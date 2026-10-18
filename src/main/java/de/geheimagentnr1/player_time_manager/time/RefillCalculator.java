@@ -48,7 +48,9 @@ public final class RefillCalculator {
 				remaining = add( remaining, rule );
 			}
 		}
-		return new TimeEntry( remaining, due.getLast().toInstant().toEpochMilli(), entry.scheduleId() );
+		// Catch-up limit reached: the remaining refills are dropped, otherwise every call would add another batch
+		long lastRefill = due.size() >= MAX_CATCH_UP ? nowMillis : due.getLast().toInstant().toEpochMilli();
+		return new TimeEntry( remaining, lastRefill, entry.scheduleId() );
 	}
 	
 	@NotNull
