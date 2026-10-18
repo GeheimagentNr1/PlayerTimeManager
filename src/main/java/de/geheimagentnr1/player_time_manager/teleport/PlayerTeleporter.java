@@ -34,19 +34,22 @@ public final class PlayerTeleporter {
 				destination.pitch(),
 				TeleportTransition.DO_NOTHING
 			) );
-		} else {
-			player.stopRiding();
-			player.teleportTo(
-				destination.level(),
-				destination.position().x(),
-				destination.position().y(),
-				destination.position().z(),
-				Set.of(),
-				destination.yaw(),
-				destination.pitch(),
-				true
-			);
+			if( player.level() == destination.level() ) {
+				return true;
+			}
+			// e.g. another mod stopped the vehicle: the player still has to leave alone
 		}
+		player.stopRiding();
+		player.teleportTo(
+			destination.level(),
+			destination.position().x(),
+			destination.position().y(),
+			destination.position().z(),
+			Set.of(),
+			destination.yaw(),
+			destination.pitch(),
+			true
+		);
 		return player.level() == destination.level();
 	}
 }
