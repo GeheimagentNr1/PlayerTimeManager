@@ -43,7 +43,7 @@ Player Time Manager begrenzt, wie lange Spieler **insgesamt in der Welt** und **
 - **Attachments per Codec**, kein `INBTSerializable` (wird ab NeoForge 21.6 nicht mehr gelesen).
 - **Teleport 1.21.1**: Spieler steigt vom Reittier ab und wird allein teleportiert; ab 1.21.2 Fahrzeug mit `TeleportTransition` (Port-Plan). Bricht ein anderer Mod den Teleport ab (z. B. DimensionAccessManager), Ausweichen zum Welt-Spawn, Log-WARN und Meldung höchstens alle 5 s.
 - `PlayerRespawnPositionEvent` nutzt in 1.21.1 `DimensionTransition`, ab 1.21.2 `TeleportTransition` - beim Port anpassen. Minecraft zieht die Seelenanker-Ladung **vor** dem Event ab; beim Umleiten gibt `TimeService.refundAnchorCharge` sie zurück (`AnchorRefund`) - beim Port prüfen, ob das noch so ist.
-- Bekannte kleine Punkte aus dem Final Review (zurückgestellt): Welt-Spawn ohne Vanilla-`adjustSpawnLocation`, Refill-Nachholen bei Cron unter einer Stunde nach langer Pause langsam, Pausen bis 10 s zählen, `enabled = 1` still `false`, `time get` legt Einträge an, `players add` kann Doppeleinträge erzeugen, Überlauf bei `Long.MAX_VALUE`.
+- Bekannte kleine Punkte aus dem Final Review (zurückgestellt): Refill-Nachholen bei Cron unter einer Stunde nach langer Pause langsam, Pausen bis 10 s zählen, `enabled = 1` still `false`, `time get` legt Einträge an, `players add` kann Doppeleinträge erzeugen, Überlauf bei `Long.MAX_VALUE`.
 
 ## Testen
 
