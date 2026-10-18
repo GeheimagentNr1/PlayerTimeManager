@@ -391,13 +391,17 @@ public class TimeService {
 	
 	private void refundAnchorCharge( @NotNull ServerPlayer player, @NotNull TeleportTransition transition, boolean fromEndFight ) {
 		
-		BlockPos position = player.getRespawnPosition();
-		ServerLevel level = server.getLevel( player.getRespawnDimension() );
-		if( position == null || level == null || level != transition.newLevel() ) {
+		ServerPlayer.RespawnConfig respawn = player.getRespawnConfig();
+		if( respawn == null ) {
+			return;
+		}
+		BlockPos position = respawn.pos();
+		ServerLevel level = server.getLevel( respawn.dimension() );
+		if( level == null || level != transition.newLevel() ) {
 			return;
 		}
 		BlockState state = level.getBlockState( position );
-		if( AnchorRefund.isNeeded( state.getBlock() instanceof RespawnAnchorBlock, player.isRespawnForced(), fromEndFight ) ) {
+		if( AnchorRefund.isNeeded( state.getBlock() instanceof RespawnAnchorBlock, respawn.forced(), fromEndFight ) ) {
 			int charge = state.getValue( RespawnAnchorBlock.CHARGE );
 			level.setBlock( position, state.setValue( RespawnAnchorBlock.CHARGE, AnchorRefund.refundedCharge( charge ) ), 3 );
 		}
