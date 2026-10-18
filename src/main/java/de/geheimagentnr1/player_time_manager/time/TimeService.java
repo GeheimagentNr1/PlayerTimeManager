@@ -18,6 +18,8 @@ import de.geheimagentnr1.player_time_manager.text.Messages;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.portal.DimensionTransition;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
@@ -54,6 +56,10 @@ public class TimeService {
 	
 	@NotNull
 	private final Map<UUID, Long> lastExpiryAttempt = new HashMap<>();
+	
+	// Dimension a respawn was redirected away from, the message is sent to the respawned player
+	@NotNull
+	private final Map<UUID, String> redirectedRespawns = new HashMap<>();
 	
 	private long lastCountMillis = -1;
 	
@@ -278,13 +284,7 @@ public class TimeService {
 			return;
 		}
 		lastExpiryAttempt.put( player.getUUID(), now );
-		ResolvedDimension settingsOfDimension = settings.current().dimensions().get( dimension );
-		Destination destination = TargetResolver.resolve(
-			server,
-			player,
-			settingsOfDimension == null ? null : settingsOfDimension.target(),
-			target -> isBlocked( player, target, now )
-		);
+		Destination destination = destination( player, dimension, now );
 		boolean teleported = PlayerTeleporter.teleport( player, destination );
 		if( !teleported ) {
 			// e.g. another mod cancelled the teleport into the target dimension
@@ -295,6 +295,18 @@ public class TimeService {
 		}
 		Scope scope = Scope.dimension( dimension );
 		player.sendSystemMessage( Messages.dimensionExpired( Messages.scopeName( scope ), nextRefillText( scope, now ) ) );
+	}
+	
+	@NotNull
+	private Destination destination( @NotNull ServerPlayer player, @NotNull String dimension, long now ) {
+		
+		ResolvedDimension settingsOfDimension = settings.current().dimensions().get( dimension );
+		return TargetResolver.resolve(
+			server,
+			player,
+			settingsOfDimension == null ? null : settingsOfDimension.target(),
+			target -> isBlocked( player, target, now )
+		);
 	}
 	
 	public void notifyBlocked( @NotNull ServerPlayer player, @NotNull String dimension, long now ) {
@@ -335,8 +347,36 @@ public class TimeService {
 		}
 	}
 	
+	// Called before the respawn, so the player doesn't appear in the blocked dimension first
+	@NotNull
+	public Optional<DimensionTransition> redirectRespawn(
+		@NotNull ServerPlayer player,
+		@NotNull DimensionTransition transition,
+		long now ) {
+		
+		String dimension = transition.newLevel().dimension().location().toString();
+		if( !isBlocked( player, dimension, now ) ) {
+			return Optional.empty();
+		}
+		Destination destination = destination( player, dimension, now );
+		redirectedRespawns.put( player.getUUID(), dimension );
+		return Optional.of( new DimensionTransition(
+			destination.level(),
+			destination.position(),
+			Vec3.ZERO,
+			destination.yaw(),
+			destination.pitch(),
+			DimensionTransition.DO_NOTHING
+		) );
+	}
+	
 	public void onRespawn( @NotNull ServerPlayer player, long now ) {
 		
+		String redirectedFrom = redirectedRespawns.remove( player.getUUID() );
+		if( redirectedFrom != null ) {
+			Scope scope = Scope.dimension( redirectedFrom );
+			player.sendSystemMessage( Messages.dimensionExpired( Messages.scopeName( scope ), nextRefillText( scope, now ) ) );
+		}
 		String dimension = player.level().dimension().location().toString();
 		if( isBlocked( player, dimension, now ) ) {
 			sendOutOfDimension( player, dimension, now, true );
@@ -348,6 +388,7 @@ public class TimeService {
 		display.remove( player );
 		lastBlockedNotice.remove( player.getUUID() );
 		lastExpiryAttempt.remove( player.getUUID() );
+		redirectedRespawns.remove( player.getUUID() );
 	}
 	
 	// Entries added by hand with only a name get their uuid on the first login of that player

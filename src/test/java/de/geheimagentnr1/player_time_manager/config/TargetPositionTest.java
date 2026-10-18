@@ -36,4 +36,13 @@ class TargetPositionTest {
 		TargetPosition position = new TargetPosition( 10.75, 70, -3.5, 180f, 0f );
 		assertEquals( position, TargetPosition.parse( position.format() ) );
 	}
+	
+	@Test
+	void describesTargetsWithoutPosition() {
+		
+		assertEquals( "minecraft:overworld (world spawn)", TargetPosition.describe( "minecraft:overworld", "" ) );
+		assertEquals( "minecraft:the_end (End platform)", TargetPosition.describe( "minecraft:the_end", "" ) );
+		assertEquals( "minecraft:the_nether (no position, world spawn is used)", TargetPosition.describe( "minecraft:the_nether", "" ) );
+		assertEquals( "minecraft:overworld 120 64 -35", TargetPosition.describe( "minecraft:overworld", "120 64 -35" ) );
+	}
 }

@@ -37,6 +37,20 @@ public record TargetPosition( double x, double y, double z, @Nullable Float yaw,
 		}
 	}
 	
+	// For command output: an empty position means world spawn (Overworld) or the End platform
+	@NotNull
+	public static String describe( @NotNull String dimension, @NotNull String position ) {
+		
+		if( !position.isEmpty() ) {
+			return dimension + " " + position;
+		}
+		return switch( dimension ) {
+			case "minecraft:overworld" -> dimension + " (world spawn)";
+			case "minecraft:the_end" -> dimension + " (End platform)";
+			default -> dimension + " (no position, world spawn is used)";
+		};
+	}
+	
 	private static double finite( double value, @NotNull String text ) {
 		
 		if( !Double.isFinite( value ) ) {

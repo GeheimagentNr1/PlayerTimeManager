@@ -2,6 +2,8 @@ package de.geheimagentnr1.player_time_manager.time;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,6 +14,9 @@ public final class DurationParser {
 
 	@NotNull
 	private static final Pattern PATTERN = Pattern.compile( "^(?:(\\d+)h)?(?:(\\d+)m)?(?:(\\d+)s)?$" );
+
+	@NotNull
+	private static final DateTimeFormatter DATE_TIME = DateTimeFormatter.ofPattern( "dd.MM.yyyy HH:mm" );
 
 	private DurationParser() {
 
@@ -57,6 +62,30 @@ public final class DurationParser {
 		return builder.toString();
 	}
 
+	// For live displays (bossbar, actionbar): 4:05, 1:30:00, 2d 03:00:00
+	@NotNull
+	public static String formatClock( long millis ) {
+		
+		long totalSeconds = millis <= 0 ? 0 : ( millis + 999 ) / 1000;
+		long days = totalSeconds / 86400;
+		long hours = totalSeconds % 86400 / 3600;
+		long minutes = totalSeconds % 3600 / 60;
+		long seconds = totalSeconds % 60;
+		if( days > 0 ) {
+			return String.format( "%dd %02d:%02d:%02d", days, hours, minutes, seconds );
+		}
+		if( hours > 0 ) {
+			return String.format( "%d:%02d:%02d", hours, minutes, seconds );
+		}
+		return String.format( "%d:%02d", minutes, seconds );
+	}
+	
+	@NotNull
+	public static String formatDateTime( @NotNull ZonedDateTime time ) {
+		
+		return DATE_TIME.format( time );
+	}
+	
 	private static void append( @NotNull StringBuilder builder, long value, char unit ) {
 
 		if( !builder.isEmpty() ) {

@@ -8,6 +8,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.EntityTravelToDimensionEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerRespawnPositionEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
@@ -88,6 +89,15 @@ public class GameEventHandler {
 		
 		if( service != null && event.getEntity() instanceof ServerPlayer player ) {
 			service.onLogin( player, System.currentTimeMillis() );
+		}
+	}
+	
+	@SubscribeEvent
+	public void handleRespawnPosition( @NotNull PlayerRespawnPositionEvent event ) {
+		
+		if( service != null && event.getEntity() instanceof ServerPlayer player ) {
+			service.redirectRespawn( player, event.getDimensionTransition(), System.currentTimeMillis() )
+				.ifPresent( event::setDimensionTransition );
 		}
 	}
 	

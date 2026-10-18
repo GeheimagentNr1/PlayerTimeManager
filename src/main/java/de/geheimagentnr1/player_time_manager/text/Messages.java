@@ -1,5 +1,6 @@
 package de.geheimagentnr1.player_time_manager.text;
 
+import de.geheimagentnr1.player_time_manager.time.DurationParser;
 import de.geheimagentnr1.player_time_manager.time.Scope;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -7,7 +8,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 
@@ -16,9 +16,6 @@ public final class Messages {
 	
 	@NotNull
 	private static final String PREFIX = "player_time_manager.";
-	
-	@NotNull
-	private static final DateTimeFormatter DATE_TIME = DateTimeFormatter.ofPattern( "yyyy-MM-dd HH:mm" );
 	
 	@NotNull
 	private static final Map<String, String> VANILLA_DIMENSIONS = Map.of(
@@ -53,7 +50,7 @@ public final class Messages {
 	@NotNull
 	public static MutableComponent nextRefill( @Nullable ZonedDateTime next ) {
 		
-		return next == null ? tr( "refill.none", "only by an admin" ) : Component.literal( DATE_TIME.format( next ) );
+		return next == null ? tr( "refill.none", "only by an admin" ) : Component.literal( DurationParser.formatDateTime( next ) );
 	}
 	
 	@NotNull

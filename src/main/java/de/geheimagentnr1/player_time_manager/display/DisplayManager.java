@@ -56,7 +56,7 @@ public class DisplayManager {
 			if( i > 0 ) {
 				text.append( " | " );
 			}
-			text.append( Messages.bossbar( Messages.scopeName( status.scope() ), DurationParser.format( status.remainingMillis() ), status.paused() ) );
+			text.append( Messages.bossbar( Messages.scopeName( status.scope() ), DurationParser.formatClock( status.remainingMillis() ), status.paused() ) );
 		}
 		return text;
 	}
@@ -84,7 +84,7 @@ public class DisplayManager {
 			}
 			bar.setName( Messages.bossbar(
 				Messages.scopeName( status.scope() ),
-				DurationParser.format( status.remainingMillis() ),
+				DurationParser.formatClock( status.remainingMillis() ),
 				status.paused()
 			) );
 			bar.setProgress( BarColor.progress( status.remainingMillis(), status.limitMillis() ) );

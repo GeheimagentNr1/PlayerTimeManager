@@ -528,7 +528,7 @@ public class PlaytimeCommand {
 	
 	private int showTarget( @NotNull CommandContext<CommandSourceStack> context ) throws CommandSyntaxException {
 		
-		return showDimensionValue( context, "target", dimension -> dimension.targetDimension() + " " + shown( dimension.targetPosition() ) );
+		return showDimensionValue( context, "target", dimension -> TargetPosition.describe( dimension.targetDimension(), dimension.targetPosition() ) );
 	}
 	
 	private int targetHere( @NotNull CommandContext<CommandSourceStack> context ) throws CommandSyntaxException {
@@ -557,7 +557,7 @@ public class PlaytimeCommand {
 		if( targetDimension.equals( id ) ) {
 			return failure( context, Messages.invalidValue( "The target can't be inside the limited dimension itself" ) );
 		}
-		return updateDimension( context, "target", targetDimension + " " + shown( position ), dimension -> ConfigEdits.withTarget( dimension, targetDimension, position ) );
+		return updateDimension( context, "target", TargetPosition.describe( targetDimension, position ), dimension -> ConfigEdits.withTarget( dimension, targetDimension, position ) );
 	}
 	
 	// ------------------------------------------------------------------ /playtime players
