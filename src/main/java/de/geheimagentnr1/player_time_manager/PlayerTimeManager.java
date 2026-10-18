@@ -24,7 +24,8 @@ public class PlayerTimeManager {
 	public PlayerTimeManager( @NotNull IEventBus modEventBus, @NotNull ModContainer modContainer ) {
 		
 		ServerConfig serverConfig = new ServerConfig();
-		modContainer.registerConfig( ModConfig.Type.SERVER, serverConfig.getSpec() );
+		// NeoForge 26.3 renamed SERVER to SYNCED (default file name "-synced"); the old file name keeps existing configs
+		modContainer.registerConfig( ModConfig.Type.SYNCED, serverConfig.getSpec(), MODID + "-server.toml" );
 		SettingsHolder settings = new SettingsHolder( serverConfig );
 		
 		ModAttachmentTypes.ATTACHMENT_TYPES.register( modEventBus );
