@@ -72,7 +72,7 @@ public final class TargetResolver {
 			position = level.getHeightmapPos( Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, position );
 		}
 		// Like vanilla: a free place within the spawn radius, not inside blocks
-		Vec3 target = player.adjustSpawnLocation( level, position ).getBottomCenter();
+		Vec3 target = Vec3.atBottomCenterOf( player.adjustSpawnLocation( level, position ) );
 		return new Destination( level, target, respawn.yaw(), respawn.pitch() );
 	}
 }
