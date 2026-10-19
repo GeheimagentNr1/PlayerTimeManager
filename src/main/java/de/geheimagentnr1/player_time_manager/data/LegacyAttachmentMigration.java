@@ -103,11 +103,12 @@ public class LegacyAttachmentMigration {
 		if( attachments.contains( key ) || !( legacyAttachments.get( key ) instanceof CompoundTag nbt ) ) {
 			return;
 		}
+		// A broken entry must not cost the other remaining times of the dimension
 		TimeData.CODEC.codec().parse( NbtOps.INSTANCE, nbt )
-			.ifSuccess( data -> {
+			.resultOrPartial( error -> LOGGER.warn( "Player Time Manager: could not take over all of {} of {}: {}", key, level.dimension(), error ) )
+			.ifPresent( data -> {
 				level.setData( type, data );
 				LOGGER.info( "Player Time Manager: took over {} remaining times of {} from the old save file", data.entries().size(), level.dimension() );
-			} )
-			.ifError( error -> LOGGER.warn( "Player Time Manager: could not take over {} of {}: {}", key, level.dimension(), error.message() ) );
+			} );
 	}
 }

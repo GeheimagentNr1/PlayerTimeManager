@@ -147,7 +147,7 @@ public final class SettingsResolver {
 		@NotNull List<String> problems ) {
 		
 		String targetDimension = entry.targetDimension().isBlank() ? OVERWORLD : entry.targetDimension().trim();
-		String fix = " Players are sent to the Overworld world spawn instead. Fix: /playtime config dimension " + id + " target here";
+		String fix = " Players are sent to the world spawn instead. Fix: /playtime config dimension " + id + " target here";
 		if( !knownDimensions.contains( targetDimension ) ) {
 			problems.add( prefix + ".target_dimension: unknown dimension " + targetDimension + "." + fix );
 			return null;
