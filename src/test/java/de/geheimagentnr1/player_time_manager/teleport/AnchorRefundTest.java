@@ -14,10 +14,12 @@ class AnchorRefundTest {
 	void refundsOnlyWhenMinecraftUsedACharge() {
 		
 		// Minecraft 1.21.1 uses a charge only for a not forced anchor spawn and not when leaving the End
-		assertTrue( AnchorRefund.isNeeded( true, false, false ) );
-		assertFalse( AnchorRefund.isNeeded( false, false, false ) );
-		assertFalse( AnchorRefund.isNeeded( true, true, false ) );
-		assertFalse( AnchorRefund.isNeeded( true, false, true ) );
+		assertTrue( AnchorRefund.isNeeded( true, false, false, false ) );
+		assertFalse( AnchorRefund.isNeeded( false, false, false, false ) );
+		assertFalse( AnchorRefund.isNeeded( true, true, false, false ) );
+		assertFalse( AnchorRefund.isNeeded( true, false, true, false ) );
+		// No usable anchor (empty or blocked): Minecraft took no charge
+		assertFalse( AnchorRefund.isNeeded( true, false, false, true ) );
 	}
 	
 	@Test

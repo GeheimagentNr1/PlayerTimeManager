@@ -27,7 +27,7 @@ public final class DimensionEntries {
 		comments.put( "refill_mode", "SET = set the remaining time to the limit, ADD = add the limit to the remaining time" );
 		comments.put( "refill_max", "Maximum remaining time after an ADD refill, e.g. \"4h\" (\"\" = no maximum)" );
 		comments.put( "target_dimension", "Dimension players are sent to when their time in this dimension is used up" );
-		comments.put( "target_position", "Target position \"x y z\" or \"x y z yaw pitch\" (\"\" = world spawn in the Overworld, obsidian platform in the End; required for all other dimensions)" );
+		comments.put( "target_position", "Target position \"x y z\" or \"x y z yaw pitch\" (\"\" = world spawn, obsidian platform in the End; required for all other dimensions)" );
 		COMMENTS = Collections.unmodifiableMap( comments );
 	}
 	
