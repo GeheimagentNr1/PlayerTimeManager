@@ -69,6 +69,8 @@ public final class TargetResolver {
 		if( !SpawnChoice.useWorldSpawnDimension( level.dimension().location().toString(), blockedDimension ) ) {
 			// Same x/z on the surface of the Overworld, which can't be limited
 			level = server.overworld();
+			// The heightmap is only valid in a loaded chunk (otherwise it gives the lowest height)
+			level.getChunk( position );
 			position = level.getHeightmapPos( Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, position );
 		}
 		// Like vanilla: a free place within the spawn radius, not inside blocks
