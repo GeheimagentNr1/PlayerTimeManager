@@ -18,7 +18,7 @@ Player Time Manager begrenzt, wie lange Spieler **insgesamt in der Welt** und **
 
 ## Architektur
 
-- `PlayerTimeManager` - Hauptklasse: registriert `ServerConfig` (Typ SERVER), `ModAttachmentTypes`, `ConfigReloadHandler` (Mod-Bus) und `GameEventHandler` (Game-Bus).
+- `PlayerTimeManager` - Hauptklasse: registriert `ServerConfig` (Typ SERVER, ab 26.3 SYNCED über `config/ServerConfigRegistration` mit altem Dateinamen), `ModAttachmentTypes`, `ConfigReloadHandler` (Mod-Bus) und `GameEventHandler` (Game-Bus).
 - `config/` - `ServerConfig` (ModConfigSpec, Listen `[[dimensions]]` als Tabellen), `ConfigTables` (NeoForge-frei: Tabellen-Prüfung und Tabellen mit fester Schlüsselreihenfolge), `raw/` (Werte wie in der Datei), `SettingsResolver` → `resolved/` (geprüfte Werte mit sicheren Ersatzwerten und Problem-Liste), `SettingsHolder` (aktueller Stand, neu bei jedem Config-Reload), `TargetPosition` (Positions-String parsen/formatieren/beschreiben).
 - `cron/CronExpression` - 5-Feld-Cron wie crontab.guru (Tag/Wochentag ODER-verknüpft, wenn keins mit `*` beginnt).
 - `time/` - reine Logik, mit fester Uhr testbar: `TimeAccounting` (Echtzeit-Differenz, lange Lücken zählen nicht), `RefillCalculator`/`RefillRule`/`RefillMode` (`SET`/`ADD` mit `refill_max`, Nachholen mit Höchstzahl), `ExemptionChecker` (OP, Listen, Kreativ/Zuschauer → `TimeState`), `DurationParser` (Dauern parsen, `format` für Text, `formatClock` für Live-Anzeigen, `formatDateTime` = `dd.MM.yyyy HH:mm`). `TimeService` verbindet alles mit dem Server (Zählung jede Sekunde, Ablauf, Sperren, Respawn, Login).
@@ -33,7 +33,7 @@ Player Time Manager begrenzt, wie lange Spieler **insgesamt in der Welt** und **
 - Welt-Limit (zählt in allen Dimensionen) und Dimensions-Limits laufen parallel. Welt bei 0: Kick + Login-Sperre. Dimension bei 0: Teleport zum Zielpunkt, Betreten gesperrt (`EntityTravelToDimensionEvent`), Respawn dorthin vorab umgeleitet (`PlayerRespawnPositionEvent`). Die Overworld kann keinen Dimensions-Eintrag haben.
 - Pause: OP mit `ops_exempt` (Standard true), `exempt_players`, nicht in nicht-leerer `limited_players`, Kreativ/Zuschauer (abschaltbar).
 - `/playtime` (alle: eigene Restzeit), Admin (`command_permission_level`, Standard 3): `time get|set|add|remove|refill|overview`, `config general|world|dimension <dim> ...` (inkl. `add|remove`, `target here|<dim> <x y z> [yaw pitch]|default`), `players limited|exempt list|add|remove`.
-- Config-Datei: **`config/player_time_manager-server.toml`** im Server-Ordner (NeoForge 21.1 legt neue Server-Configs dort an; eine vorhandene Datei in `world/serverconfig/` hätte Vorrang). Jeder Wert mit englischem Kommentar; nur in der Datei: `command_permission_level`, `time_zone`, Pausen, `display_mode`, Bossbar-Prozente, `warning_times`, `warning_sound`.
+- Config-Datei: **`config/player_time_manager-server.toml`** im Server-Ordner (NeoForge legt neue Server-Configs dort an; eine vorhandene Datei in `world/serverconfig/` hätte Vorrang, ab NeoForge 26.3.0.37 in `world/syncedconfig/` - `config/LegacyServerConfigMigration` kopiert eine alte Welt-Datei einmalig dorthin, nur Dedicated Server, liest `level-name`, nicht `--world`). Jeder Wert mit englischem Kommentar; nur in der Datei: `command_permission_level`, `time_zone`, Pausen, `display_mode`, Bossbar-Prozente, `warning_times`, `warning_sound`.
 - Formate: Bossbar/Actionbar `1:30:05` / `2d 03:00:00`, Text `1h 30m 5s`, Datum `19.10.2026 06:00` (in `time_zone`).
 
 ## Fallstricke
