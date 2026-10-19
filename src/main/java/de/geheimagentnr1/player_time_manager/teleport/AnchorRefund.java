@@ -11,9 +11,10 @@ public final class AnchorRefund {
 	
 	}
 	
-	public static boolean isNeeded( boolean anchor, boolean forced, boolean fromEndFight ) {
+	// missingRespawnBlock: Minecraft found no usable anchor (empty or blocked) and took no charge
+	public static boolean isNeeded( boolean anchor, boolean forced, boolean fromEndFight, boolean missingRespawnBlock ) {
 		
-		return anchor && !forced && !fromEndFight;
+		return anchor && !forced && !fromEndFight && !missingRespawnBlock;
 	}
 	
 	public static int refundedCharge( int charge ) {

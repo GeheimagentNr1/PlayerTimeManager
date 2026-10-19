@@ -4,6 +4,7 @@ import de.geheimagentnr1.player_time_manager.commands.PlaytimeCommand;
 import de.geheimagentnr1.player_time_manager.config.SettingsHolder;
 import de.geheimagentnr1.player_time_manager.time.TimeService;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.EntityTravelToDimensionEvent;
@@ -14,6 +15,9 @@ import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class GameEventHandler {
@@ -74,10 +78,17 @@ public class GameEventHandler {
 	public void handleTravel( @NotNull EntityTravelToDimensionEvent event ) {
 		
 		TimeService current = service;
-		if( current != null && event.getEntity() instanceof ServerPlayer player ) {
-			String dimension = event.getDimension().identifier().toString();
-			long now = System.currentTimeMillis();
-			if( current.isBlocked( player, dimension, now ) ) {
+		if( current == null ) {
+			return;
+		}
+		String dimension = event.getDimension().identifier().toString();
+		long now = System.currentTimeMillis();
+		// A vehicle (horse, boat) must not take a blocked rider along through a portal
+		List<Entity> travelers = new ArrayList<>();
+		travelers.add( event.getEntity() );
+		event.getEntity().getIndirectPassengers().forEach( travelers::add );
+		for( Entity traveler : travelers ) {
+			if( traveler instanceof ServerPlayer player && current.isBlocked( player, dimension, now ) ) {
 				event.setCanceled( true );
 				current.notifyBlocked( player, dimension, now );
 			}
