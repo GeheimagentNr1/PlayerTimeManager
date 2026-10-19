@@ -2,6 +2,7 @@ package de.geheimagentnr1.player_time_manager.teleport;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -23,7 +24,8 @@ public final class PlayerTeleporter {
 			player.stopSleepInBed( true, true );
 		}
 		Entity vehicle = player.getRootVehicle();
-		boolean riding = vehicle != player;
+		// Riding another player (only possible with other mods): that player is not taken along
+		boolean riding = vehicle != player && !( vehicle instanceof Player );
 		int otherPlayerPassengers = riding ? vehicle.countPlayerPassengers() - 1 : 0;
 		if( TeleportPlan.decide( riding, otherPlayerPassengers ) == TeleportPlan.Mode.WHOLE_VEHICLE ) {
 			vehicle.teleport( new TeleportTransition(
