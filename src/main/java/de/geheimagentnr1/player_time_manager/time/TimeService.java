@@ -397,7 +397,7 @@ public class TimeService {
 			return;
 		}
 		BlockState state = level.getBlockState( position );
-		if( AnchorRefund.isNeeded( state.getBlock() instanceof RespawnAnchorBlock, player.isRespawnForced(), fromEndFight ) ) {
+		if( AnchorRefund.isNeeded( state.getBlock() instanceof RespawnAnchorBlock, player.isRespawnForced(), fromEndFight, transition.missingRespawnBlock() ) ) {
 			int charge = state.getValue( RespawnAnchorBlock.CHARGE );
 			level.setBlock( position, state.setValue( RespawnAnchorBlock.CHARGE, AnchorRefund.refundedCharge( charge ) ), 3 );
 		}
